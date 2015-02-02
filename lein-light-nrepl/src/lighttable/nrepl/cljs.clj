@@ -9,6 +9,7 @@
             [lighttable.nrepl.exception :as exception]
             [cljs.compiler :as comp]
             [cljs.analyzer :as cljs]
+            [cljs.closure :as cljsc]
             [cljs.source-map :as sm]
             [cljs.env :as cljs-env :refer [with-compiler-env]]
             [clojure.test :as test]
@@ -74,7 +75,13 @@
          (recur g' (conj l n) (union s' (intersection (no-incoming g') m)))))))
 
 
-(def compiler-env (cljs-env/default-compiler-env))
+(let  [ups-deps (cljsc/get-upstream-deps)
+       opts {:ups-libs (:libs ups-deps)
+            :ups-foreign-libs (:foreign-libs ups-deps)}]
+  (def compiler-env 
+    (cljs-env/default-compiler-env opts)))
+         
+
 (def build-env (atom {}))
 
 (defn ns->cljs-file [s]
